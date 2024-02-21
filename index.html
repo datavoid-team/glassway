@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glassway</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    header button {
+      padding: 10px 20px;
+      margin: 0 10px;
+      border: none;
+      cursor: pointer;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    header button:hover {
+      background-color: #0056b3;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    .junction {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 15px 30px; /* Increased padding for larger buttons */
+      margin: 0 10px;
+      border: none;
+      cursor: pointer;
+      background-color: #ffffff;
+      color: #333333;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #f2f2f2;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .green-background {
+      background-color: #66cc66;
+    }
+
+    .red-background {
+      background-color: #ff4d4d;
+    }
+
+    #reset-button {
+      padding: 15px 30px; /* Increased padding for larger reset button */
+      margin-top: 20px;
+      background-color: #007bff;
+      color: #ffffff;
+      border-radius: 5px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #reset-button:hover {
+      background-color: #0056b3;
+      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    }
+    #start-message {
+   /* Hide the p tag by default */
+}
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Glassway</h1>
+    <div>
+      <button id="add-junction-button">Add Junction</button>
+      <button id="remove-junction-button">Remove Junction</button>
+    </div>
+  </header>
+  <center><p>&#9660; Finish here! &#9660;</p></center>
+  <div class="container">
+    
+    <p id="start-message">Click on add junction to start</p>
+
+    
+  </div>
+<center><p>&#9650; Start from here! &#9650;</p></center>
+  <center><button id="reset-button">Reset</button></center>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+  // Function to handle button clicks
+  function handleButtonClick(event) {
+    const clickedButton = event.target;
+    const junctionDiv = clickedButton.parentNode;
+    const buttons = junctionDiv.querySelectorAll('button');
+    const correctButtonIndex = parseInt(junctionDiv.getAttribute('data-correct-button-index'));
+
+    buttons.forEach((button, index) => {
+      button.disabled = true; // Disable buttons to prevent multiple clicks
+      if (button === clickedButton) {
+        if (index === correctButtonIndex) {
+          document.body.style.backgroundColor = '#66cc66'; // Change page background to green
+        } else {
+          document.body.style.backgroundColor = '#ff4d4d'; // Change page background to red
+        }
+      }
+    });
+
+    setTimeout(() => {
+      let message;
+      if (buttons[correctButtonIndex] === clickedButton) {
+        message = 'You chose the correct door! Proceed to the next stage.';
+      } else {
+        message = 'You chose the wrong door! You have been eliminated.';
+      }
+      alert(message);
+      document.body.style.backgroundColor = 'white'; // Reset page background to white
+      buttons.forEach(button => {
+        button.disabled = false; // Re-enable buttons after displaying the message
+      });
+    }, 500); // Adjust delay as needed
+  }
+
+  // Function to add a new junction
+  function addJunction() {
+    const container = document.querySelector('.container');
+    const newJunction = document.createElement('div');
+    newJunction.classList.add('junction');
+    
+    // Randomly assign which button leads to the next stage (green)
+    const correctButtonIndex = Math.floor(Math.random() * 2);
+    
+    newJunction.setAttribute('data-correct-button-index', correctButtonIndex.toString());
+    newJunction.innerHTML = `
+      <button class="left-button">Left Door</button>
+      <button class="right-button">Right Door</button>
+    `;
+    
+    // Add event listeners to the newly created buttons
+    const newButtons = newJunction.querySelectorAll('button');
+    newButtons.forEach(newButton => {
+      newButton.addEventListener('click', handleButtonClick);
+    });
+    
+    container.appendChild(newJunction);
+    const startMessage = document.getElementById('start-message');
+  startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
+  }
+
+  // Function to remove the last junction
+  function removeJunction() {
+    const container = document.querySelector('.container');
+    const junctions = container.querySelectorAll('.junction');
+    if (junctions.length > 0) {
+      container.removeChild(junctions[junctions.length - 1]);
+    }
+    const startMessage = document.getElementById('start-message');
+  startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
+  }
+
+  // Add event listeners to existing buttons
+  const buttons = document.querySelectorAll('button.left-button, button.right-button');
+  buttons.forEach(button => {
+    button.addEventListener('click', handleButtonClick);
+  });
+
+  // Reset button functionality
+  const resetButton = document.getElementById('reset-button');
+  resetButton.addEventListener('click', () => {
+    location.reload();
+  });
+
+  // Add Junction button functionality
+  const addJunctionButton = document.getElementById('add-junction-button');
+  addJunctionButton.addEventListener('click', addJunction);
+
+  // Remove Junction button functionality
+  const removeJunctionButton = document.getElementById('remove-junction-button');
+  removeJunctionButton.addEventListener('click', removeJunction);
+
+  // Add event listeners to existing junctions
+  const junctions = document.querySelectorAll('.junction');
+  junctions.forEach(junction => {
+    const buttons = junction.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.addEventListener('click', handleButtonClick);
+    });
+  });
+});
+
+
+
+
+
+  </script>
+</body>
+</html>
