@@ -126,30 +126,54 @@
     const buttons = junctionDiv.querySelectorAll('button');
     const correctButtonIndex = parseInt(junctionDiv.getAttribute('data-correct-button-index'));
 
-    buttons.forEach((button, index) => {
-      button.disabled = true; // Disable buttons to prevent multiple clicks
-      if (button === clickedButton) {
-        if (index === correctButtonIndex) {
-          document.body.style.backgroundColor = '#66cc66'; // Change page background to green
-        } else {
-          document.body.style.backgroundColor = '#ff4d4d'; // Change page background to red
-        }
+    // Set background color to matched color before blinking animation
+    document.body.style.backgroundColor = clickedButton === buttons[correctButtonIndex] ? '#66cc66' : '#ff4d4d';
+
+    // Function to change background color in a sequence of colors
+    function blinkBackgroundColors(colors, index) {
+      if (index >= colors.length) {
+        showResultMessage(clickedButton === buttons[correctButtonIndex]);
+        return;
       }
+
+      document.body.style.backgroundColor = colors[index];
+      setTimeout(() => {
+        blinkBackgroundColors(colors, index + 1);
+      }, 500); // Adjust timing between color changes as needed
+    }
+
+    // Define the sequence of colors
+    const blinkColors = ['#66cc66', '#ff4d4d', '#007bff']; // Example colors to blink
+
+    // Disable buttons to prevent multiple clicks
+    buttons.forEach(button => {
+      button.disabled = true;
     });
 
+    // Start the blinking sequence
+    blinkBackgroundColors(blinkColors, 0);
+  }
+
+  // Function to show the result message after the blinking sequence
+  function showResultMessage(isCorrect) {
+    let message;
+    if (isCorrect) {
+      document.body.style.backgroundColor = '#66cc66'; // Change background to green
+      message = 'You chose the correct door! Proceed to the next stage.';
+    } else {
+      document.body.style.backgroundColor = '#ff4d4d'; // Change background to red
+      message = 'You chose the wrong door! You have been eliminated.';
+    }
     setTimeout(() => {
-      let message;
-      if (buttons[correctButtonIndex] === clickedButton) {
-        message = 'You chose the correct door! Proceed to the next stage.';
-      } else {
-        message = 'You chose the wrong door! You have been eliminated.';
-      }
       alert(message);
       document.body.style.backgroundColor = 'white'; // Reset page background to white
+
+      // Re-enable buttons after displaying the message
+      const buttons = document.querySelectorAll('.container button');
       buttons.forEach(button => {
-        button.disabled = false; // Re-enable buttons after displaying the message
+        button.disabled = false;
       });
-    }, 500); // Adjust delay as needed
+    }, 500); // Delay alert to allow background color to change
   }
 
   // Function to add a new junction
@@ -175,7 +199,7 @@
     
     container.appendChild(newJunction);
     const startMessage = document.getElementById('start-message');
-  startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
+    startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
   }
 
   // Function to remove the last junction
@@ -186,14 +210,8 @@
       container.removeChild(junctions[junctions.length - 1]);
     }
     const startMessage = document.getElementById('start-message');
-  startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
+    startMessage.style.display = container.children.length === 1 ? 'block' : 'none';
   }
-
-  // Add event listeners to existing buttons
-  const buttons = document.querySelectorAll('button.left-button, button.right-button');
-  buttons.forEach(button => {
-    button.addEventListener('click', handleButtonClick);
-  });
 
   // Reset button functionality
   const resetButton = document.getElementById('reset-button');
@@ -218,11 +236,6 @@
     });
   });
 });
-
-
-
-
-
   </script>
 </body>
 </html>
